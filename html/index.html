@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>AWS Image Uploads Without EC2</title>
+    <!-- Latest jQuery -->
+    <script src="https://code.jquery.com/jquery-1.12.4.min.js"></script>
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css">
+    <!-- CSS specific to this page -->
+    <link rel="stylesheet" href="css/amazon-image-upload-test.css">
+
+
+    <!-- Latest compiled and minified JavaScript -->
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <!-- The jQuery UI widget factory, can be omitted if jQuery UI is already included -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
+    <!-- The Iframe Transport is required for browsers without support for XHR file uploads -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.iframe-transport/1.0.0/jquery.iframe-transport.min.js"></script>
+    <!-- The basic File Upload plugin -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/blueimp-file-upload/9.12.6/js/jquery.fileupload.min.js"></script>
+    <!-- The main JS for bringing it all together on this page -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.5.8/angular.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/danialfarid-angular-file-upload/12.2.12/ng-file-upload-shim.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/danialfarid-angular-file-upload/12.2.12/ng-file-upload.min.js"></script>
+    <script src="js/main.js"></script>
+</head>
+
+<body ng-app="s3UploadApp">
+    <nav class="navbar navbar-inverse navbar-fixed-top">
+        <div class="container">
+            <div class="navbar-header">
+                <h3>AWS Image Uploads Without EC2</h3></div>
+        </div>
+    </nav>
+    <div class="jumbotron">
+        <div class="container text-center">
+            <div id="output" class="center-block">
+                <span id="output-helper"></span>
+                <img src="http://placehold.it/300x300" class="img-circle" />
+            </div>
+            <h1>Image Upload old school jQuery</h1>
+        </div>
+    </div>
+    <div class="container">
+        <form id="file-form" method="PUT">
+            <span class="fileinput-button btn btn-success ">
+                <span>Select file</span>
+            <input type="file" id="file-select" name="photo" />
+            </span>
+        </form>
+        <div id="progress">
+            <div class="bar progress-bar" style="width: 0%;"></div>
+        </div>
+
+        <input type="text" name="output-url" id="output-url" class="form-control" />
+    </div>
+
+    <hr>
+
+    <div ng-controller="fileUploadController">
+      <div class="jumbotron">
+          <div class="container text-center">
+              <div id="ng-output" class="center-block">
+                  <span id="ng-output-helper"></span>
+                  <img src="http://placehold.it/300x300" ng-src="{{resultImg}}" ng-class="resultImg ? 'preview' : 'img-circle'" />
+              </div>
+              <h1>Image Upload Angular style</h1>
+          </div>
+      </div>
+      <div class="container">
+          <form id="ng-file-form">
+              <span class="fileinput-button btn btn-success ">
+                  <span>Select file</span>
+              <input type="file" ngf-select="upload($file)" name="file" ngf-pattern="'image/*'" ngf-accept="'image/*'" ngf-max-size="20MB" />
+              </span>
+          </form>
+          <div id="ng-progress">
+            <div class="bar progress-bar" ng-style="{width: ( progress + '%' ) };" ng-if="!!progress"></div>
+          </div>
+          <input type="text" name="ng-output-url" id="ng-output-url" ng-model="outputUrl" class="form-control" ng-style="{'display': 'block'}" ng-if="!!outputUrl" />
+      </div>
+    </div>
+</body>
+
+</html>

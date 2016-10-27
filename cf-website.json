@@ -1,0 +1,114 @@
+{
+    "AWSTemplateFormatVersion": "2010-09-09",
+    "Description": "Helps you deploy a static website in a S3 bucket.",
+    "Parameters": {
+        "MyBucketName": {
+            "Description": "The name of the bucket.  A good name is the name of your website. ex: example.com",
+            "Type": "String",
+            "MinLength": "1",
+            "MaxLength": "64",
+            "AllowedPattern": ".*",
+            "ConstraintDescription": "You must enter a name here."
+        }
+    },
+    "Resources": {
+        "S3Bucket": {
+            "Type": "AWS::S3::Bucket",
+            "Properties": {
+                "AccessControl": "PublicRead",
+                "BucketName": {
+                    "Ref": "MyBucketName"
+                },
+                "WebsiteConfiguration": {
+                    "IndexDocument": "index.html",
+                    "ErrorDocument": "404.html"
+                }
+            },
+            "DeletionPolicy": "Delete"
+        },
+        "BucketPolicy": {
+            "Type": "AWS::S3::BucketPolicy",
+            "Properties": {
+                "PolicyDocument": {
+                    "Id": "MyPolicy",
+                    "Version": "2012-10-17",
+                    "Statement": [{
+                        "Sid": "PublicReadForGetBucketObjects",
+                        "Effect": "Allow",
+                        "Principal": {
+                            "AWS": "*"
+                        },
+                        "Action": "s3:GetObject",
+                        "Resource": {
+                            "Fn::Join": ["", ["arn:aws:s3:::", {
+                                "Ref": "S3Bucket"
+                            }, "/*"]]
+                        }
+                    }]
+                },
+                "Bucket": {
+                    "Ref": "S3Bucket"
+                }
+            }
+        },
+        "S3BucketCloudFront": {
+            "Type": "AWS::CloudFront::Distribution",
+            "Properties": {
+                "DistributionConfig": {
+                    "Origins": [{
+                        "DomainName": {
+                            "Fn::GetAtt": ["S3Bucket", "DomainName"]
+                        },
+                        "Id": "myS3Origin",
+                        "S3OriginConfig": {
+                            "OriginAccessIdentity": ""
+                        }
+                    }],
+                    "Enabled": "true",
+                    "Comment": "CloudFront distribution for web application",
+                    "DefaultRootObject": "index.html",
+                    "DefaultCacheBehavior": {
+                        "AllowedMethods": ["GET", "HEAD", "OPTIONS"],
+                        "Compress": "true",
+                        "TargetOriginId": "myS3Origin",
+                        "ForwardedValues": {
+                            "QueryString": "false",
+                            "Cookies": {
+                                "Forward": "none"
+                            }
+                        },
+                        "ViewerProtocolPolicy": "redirect-to-https"
+                    },
+                    "PriceClass": "PriceClass_100",
+                    "ViewerCertificate": {
+                        "CloudFrontDefaultCertificate": "true"
+                    }
+                }
+            }
+        }
+    },
+    "Outputs": {
+        "WebsiteURL": {
+            "Value": {
+                "Fn::GetAtt": ["S3Bucket", "WebsiteURL"]
+            },
+            "Description": "URL for website hosted on S3"
+        },
+        "S3BucketSecureURL": {
+            "Value": {
+                "Fn::Join": [
+                    "", ["https://", {
+                        "Fn::GetAtt": ["S3Bucket", "DomainName"]
+                    }, "/index.html"]
+                ]
+            },
+            "Description": "Name of S3 bucket to hold website content"
+        },
+        "CloudFrontURL": {
+          "Value": {
+            "Fn::GetAtt": ["S3BucketCloudFront", "DomainName"]
+          },
+          "Description": "The CloudFront endpoint URL"
+        }
+    }
+}

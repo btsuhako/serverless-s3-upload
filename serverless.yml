@@ -1,0 +1,169 @@
+# Welcome to Serverless!
+#
+# This file is the main config file for your service.
+# It's very minimal at this point and uses default values.
+# You can always add more config options for more control.
+# We've included some commented out config examples here.
+# Just uncomment any of them to get that config option.
+#
+# For full config options, check the docs:
+#    docs.serverless.com
+#
+# Happy Coding!
+
+service: blake-devmtn-imgur
+# NOTE: update this with your service name
+
+# It will be the base of the CloudFormation stack name, and bucket of where
+# files are stored. Please pick something globally unique.
+
+provider:
+  name: aws
+  runtime: nodejs4.3
+# you can overwrite defaults here
+  stage: dev
+  region: us-west-2
+  # you can add statements to the Lambda function's IAM Role here
+  iamRoleStatements:
+    - Effect: "Allow"
+      Action:
+        - "s3:ListBucket"
+      Resource: { "Fn::Join" : ["", ["arn:aws:s3:::", { "Ref" : "ServerlessDeploymentBucket" } ] ]  }
+    - Effect: "Allow"
+      Action:
+        - "s3:PutObject"
+      Resource:
+        Fn::Join:
+          - ""
+          - - "arn:aws:s3:::"
+            - "Ref": "ServerlessDeploymentBucket"
+    - Effect: "Allow"
+      Action:
+        - "s3:ListBucket"
+      Resource:
+        Fn::Join:
+          - ""
+          - - "arn:aws:s3:::"
+            - "Ref": "S3Bucket"
+    - Effect: "Allow"
+      Action:
+        - "s3:PutObject"
+        - "s3:GetObject"
+        - "s3:PutObjectAcl"
+      Resource:
+        Fn::Join:
+          - ""
+          - - "arn:aws:s3:::"
+            - "Ref": "S3Bucket"
+            - "/*"
+custom:
+  stage: ${opt:stage, self:provider.stage}
+  appBucket: ${self:service}-store-${self:custom.stage}
+  writeEnvVars:
+    SERVERLESS_STAGE: ${self:custom.stage}
+    SERVERLESS_SERVICE_NAME: ${self:service}
+    SERVICE_BUCKET: ${self:custom.appBucket}
+    SERVICE_S3_URL_PREFIX: https://s3-${self:provider.region}.amazonaws.com/${self:custom.appBucket}/
+
+# you can add packaging information here
+package:
+  exclude:
+    - node_modules/aws-sdk/*
+#  artifact: my-service-code.zip
+
+plugins:
+  - serverless-plugin-write-env-vars
+  - serverless-run-function-plugin
+
+functions:
+  sign:
+    handler: handler.sign
+    package:
+      exclude:
+        - node_modules/aws-sdk/*
+
+#    The following are a few example events you can configure
+#    NOTE: Please make sure to change your handler code to work with those events
+#    Check the event documentation for details
+    events:
+       - http:
+           path: uploads/sign
+           method: POST
+           cors: true
+          #  integration: lambda
+          #  request:
+          #    parameters:
+          #      headers:
+          #        contentType: true
+          #  response:
+          #    headers:
+          #      Content-Type: "'application/json'"
+#   - s3: ${env:BUCKET}
+#   - schedule: rate(10 minutes)
+#   - sns: greeter-topic
+#   - stream: arn:aws:dynamodb:region:XXXXXX:table/foo/stream/1970-01-01T00:00:00.000
+
+# you can add CloudFormation resource templates here
+resources:
+  Parameters:
+    S3BucketParam:
+      Type: String
+      MaxLength: 128
+      MinLength: 1
+      Default: ${self:custom.appBucket}
+      AllowedPattern: ".*"
+      Description: "The name of the bucket where stuff is stored"
+  Resources:
+    S3Bucket:
+      Type: AWS::S3::Bucket
+      Properties:
+        BucketName: ${self:custom.appBucket}
+        AccessControl: PublicRead
+        CorsConfiguration:
+          CorsRules:
+            -
+              AllowedHeaders:
+                - "*"
+              AllowedMethods:
+                - "POST"
+                - "PUT"
+              AllowedOrigins:
+                - "*.cloudfront.net"
+                - "*.s3.amazonaws.com"
+              Id: myCORSRuleId1
+              MaxAge: 600
+            -
+              AllowedHeaders:
+                - "*"
+              AllowedMethods:
+                - "GET"
+              AllowedOrigins:
+                - "*"
+              Id: myCORSRuleId2
+              MaxAge: 600
+      DeletionPolicy: Delete
+    S3BucketPolicy:
+      Type: "AWS::S3::BucketPolicy"
+      Properties:
+        Bucket:
+          Ref: "S3Bucket"
+        PolicyDocument:
+          Statement:
+            -
+              Action:
+                - "s3:GetObject"
+              Effect: Allow
+              Principal: "*"
+              Resource:
+                Fn::Join:
+                  - ""
+                  -
+                    - "arn:aws:s3:::"
+                    -
+                      Ref: "S3Bucket"
+                    - "/*"
+  Outputs:
+     BucketName:
+       Description: "The bucket for ${self:custom.appBucket}."
+       Value:
+         Ref: S3Bucket

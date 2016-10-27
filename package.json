@@ -1,0 +1,26 @@
+{
+  "name": "blake-devmtn-imgur",
+  "version": "1.0.0",
+  "description": "For creating signing URLs for S3 uploads",
+  "main": "handler.js",
+  "dependencies": {
+    "dotenv": "^2.0.0",
+    "node-uuid": "^1.4.7",
+    "serverless-plugin-write-env-vars": "^1.0.1"
+  },
+  "devDependencies": {
+    "aws-sdk": "^2.6.9",
+    "serverless-run-function-plugin": "0.0.4"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "s3",
+    "node",
+    "js",
+    "serverless"
+  ],
+  "author": "Blake K Tsuhako",
+  "license": "MIT"
+}
