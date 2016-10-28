@@ -1,4 +1,4 @@
-var SIGN_API = 'https://awa81j9141.execute-api.us-west-2.amazonaws.com/dev/uploads/sign';
+var SIGN_API = 'SERVERLESS_ENDPOINT';
 
 $(document).ready(function() {
 
