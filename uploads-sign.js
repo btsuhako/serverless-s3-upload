@@ -1,7 +1,7 @@
 'use strict';
 
 const aws = require('aws-sdk');
-const uuid = require('node-uuid');
+const shortid = require('shortid');
 const s3 = new aws.S3({
     apiVersion: '2006-03-01'
 });
@@ -23,8 +23,8 @@ module.exports = (event, callback) => {
     }
 
     const extension = body.contentType.match(/(\.|\/)(gif|jpe?g|png)$/i)[2];
-    // Generate a v4 (random) id
-    const fileBaseName = uuid.v4(); // -> '110ec58a-a0f2-4ac4-8393-c866d813b8d1'
+    // Generate a random id
+    const fileBaseName = shortid.generate();
     const key = fileBaseName + '.' + extension;
 
     console.log('Event Type: ' + body.contentType);

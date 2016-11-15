@@ -5,8 +5,8 @@
   "main": "handler.js",
   "dependencies": {
     "dotenv": "^2.0.0",
-    "node-uuid": "^1.4.7",
-    "serverless-plugin-write-env-vars": "^1.0.1"
+    "serverless-plugin-write-env-vars": "^1.0.1",
+    "shortid": "^2.2.6"
   },
   "devDependencies": {
     "aws-sdk": "^2.6.9",
