@@ -10,7 +10,8 @@
   },
   "devDependencies": {
     "aws-sdk": "^2.6.9",
-    "serverless-run-function-plugin": "0.0.4"
+    "serverless-run-function-plugin": "0.0.4",
+    "serverless": "1.2.0"
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
