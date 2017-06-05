@@ -130,6 +130,7 @@ resources:
               AllowedOrigins:
                 - "*.cloudfront.net"
                 - "*.s3.amazonaws.com"
+                - "*.s3-us-west-2.amazonaws.com"
               Id: myCORSRuleId1
               MaxAge: 600
             -
