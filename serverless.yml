@@ -19,43 +19,47 @@ service: blake-devmtn-imgur
 
 provider:
   name: aws
-  runtime: nodejs4.3
-# you can overwrite defaults here
+  runtime: nodejs8.10
+  # you can overwrite defaults here
   stage: dev
   region: us-west-2
   # you can add statements to the Lambda function's IAM Role here
   iamRoleStatements:
-    - Effect: "Allow"
+    - Effect: 'Allow'
       Action:
-        - "s3:ListBucket"
-      Resource: { "Fn::Join" : ["", ["arn:aws:s3:::", { "Ref" : "ServerlessDeploymentBucket" } ] ]  }
-    - Effect: "Allow"
+        - 's3:ListBucket'
+      Resource:
+        {
+          'Fn::Join':
+            ['', ['arn:aws:s3:::', { 'Ref': 'ServerlessDeploymentBucket' }]],
+        }
+    - Effect: 'Allow'
       Action:
-        - "s3:PutObject"
+        - 's3:PutObject'
       Resource:
         Fn::Join:
-          - ""
-          - - "arn:aws:s3:::"
-            - "Ref": "ServerlessDeploymentBucket"
-    - Effect: "Allow"
+          - ''
+          - - 'arn:aws:s3:::'
+            - 'Ref': 'ServerlessDeploymentBucket'
+    - Effect: 'Allow'
       Action:
-        - "s3:ListBucket"
+        - 's3:ListBucket'
       Resource:
         Fn::Join:
-          - ""
-          - - "arn:aws:s3:::"
-            - "Ref": "S3Bucket"
-    - Effect: "Allow"
+          - ''
+          - - 'arn:aws:s3:::'
+            - 'Ref': 'S3Bucket'
+    - Effect: 'Allow'
       Action:
-        - "s3:PutObject"
-        - "s3:GetObject"
-        - "s3:PutObjectAcl"
+        - 's3:PutObject'
+        - 's3:GetObject'
+        - 's3:PutObjectAcl'
       Resource:
         Fn::Join:
-          - ""
-          - - "arn:aws:s3:::"
-            - "Ref": "S3Bucket"
-            - "/*"
+          - ''
+          - - 'arn:aws:s3:::'
+            - 'Ref': 'S3Bucket'
+            - '/*'
 custom:
   stage: ${opt:stage, self:provider.stage}
   appBucket: ${self:service}-store-${self:custom.stage}
@@ -82,14 +86,14 @@ functions:
       exclude:
         - node_modules/aws-sdk/*
 
-#    The following are a few example events you can configure
-#    NOTE: Please make sure to change your handler code to work with those events
-#    Check the event documentation for details
+    #    The following are a few example events you can configure
+    #    NOTE: Please make sure to change your handler code to work with those events
+    #    Check the event documentation for details
     events:
-       - http:
-           path: uploads/sign
-           method: POST
-           cors: true
+      - http:
+          path: uploads/sign
+          method: POST
+          cors: true
           #  integration: lambda
           #  request:
           #    parameters:
@@ -111,8 +115,8 @@ resources:
       MaxLength: 128
       MinLength: 1
       Default: ${self:custom.appBucket}
-      AllowedPattern: ".*"
-      Description: "The name of the bucket where stuff is stored"
+      AllowedPattern: '.*'
+      Description: 'The name of the bucket where stuff is stored'
   Resources:
     S3Bucket:
       Type: AWS::S3::Bucket
@@ -121,50 +125,45 @@ resources:
         AccessControl: PublicRead
         CorsConfiguration:
           CorsRules:
-            -
-              AllowedHeaders:
-                - "*"
+            - AllowedHeaders:
+                - '*'
               AllowedMethods:
-                - "POST"
-                - "PUT"
+                - 'POST'
+                - 'PUT'
               AllowedOrigins:
-                - "*.cloudfront.net"
-                - "*.s3.amazonaws.com"
-                - "*.s3-us-west-2.amazonaws.com"
+                - '*.cloudfront.net'
+                - '*.s3.amazonaws.com'
+                - '*.s3-us-west-2.amazonaws.com'
               Id: myCORSRuleId1
               MaxAge: 600
-            -
-              AllowedHeaders:
-                - "*"
+            - AllowedHeaders:
+                - '*'
               AllowedMethods:
-                - "GET"
+                - 'GET'
               AllowedOrigins:
-                - "*"
+                - '*'
               Id: myCORSRuleId2
               MaxAge: 600
       DeletionPolicy: Delete
     S3BucketPolicy:
-      Type: "AWS::S3::BucketPolicy"
+      Type: 'AWS::S3::BucketPolicy'
       Properties:
         Bucket:
-          Ref: "S3Bucket"
+          Ref: 'S3Bucket'
         PolicyDocument:
           Statement:
-            -
-              Action:
-                - "s3:GetObject"
+            - Action:
+                - 's3:GetObject'
               Effect: Allow
-              Principal: "*"
+              Principal: '*'
               Resource:
                 Fn::Join:
-                  - ""
-                  -
-                    - "arn:aws:s3:::"
-                    -
-                      Ref: "S3Bucket"
-                    - "/*"
+                  - ''
+                  - - 'arn:aws:s3:::'
+                    - Ref: 'S3Bucket'
+                    - '/*'
   Outputs:
-     BucketName:
-       Description: "The bucket for ${self:custom.appBucket}."
-       Value:
-         Ref: S3Bucket
+    BucketName:
+      Description: 'The bucket for ${self:custom.appBucket}.'
+      Value:
+        Ref: S3Bucket
